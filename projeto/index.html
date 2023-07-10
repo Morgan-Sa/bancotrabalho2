@@ -201,11 +201,11 @@
           });
       }
 
-      function handleSearchEvent() {
+      async function handleSearchEvent() {
         const searchText = document.getElementById("searchText").value;
 
-        fetch(
-          `http://localhost:3000/api/event/search?q=${encodeURIComponent(
+        await fetch(
+          `http://localhost:3000/api/event?search=${encodeURIComponent(
             searchText
           )}`
         )
@@ -261,6 +261,11 @@
       <button type="button" onclick="handleUpdateEvent()">Atualizar</button>
 
       <button type="submit">Salvar</button>
+    </form>
+
+    <form>
+      <input id="searchText" type="text" placeholder="pesquisar peso" />
+      <button onclick="handleSearchEvent()">Listar Peso</button>
     </form>
 
     <h1>Mapa</h1>

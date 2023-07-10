@@ -14,10 +14,26 @@ router.post('/event', async (req, res) => {
 });
 
 // Rota para listar todos os eventos
-router.get('/event', async (req, res) => {
+// Parametro opcional na query (?search)
+router.get("/event", async (req, res) => {
   try {
-    const events = await Event.find();
-    res.json(events);
+    const { search } = req.query;
+    if (search) {
+      console.log(search);
+      const events = await Event.find(
+        // pesquisa com o parametro search
+        { $text: { $search: search } },
+        // retorn score junto ao resultado
+        { score: { $meta: "textScore" } }
+      )
+        // ordena o resultado
+        .sort({ score: { $meta: "textScore" } });
+
+      res.json(events);
+    } else {
+      const events = await Event.find();
+      res.json(events);
+    }
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

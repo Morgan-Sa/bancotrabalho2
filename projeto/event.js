@@ -23,6 +23,15 @@ const eventSchema = new mongoose.Schema({
   }
 });
 
+eventSchema.index(
+  { title: "text", description: "text" },
+  {
+    default_language: "pt",
+    name: "contentTextIndex",
+    weights: { title: 2, description: 1 },
+  }
+);
+
 const Event = mongoose.model('Event', eventSchema);
 
 module.exports = Event;
