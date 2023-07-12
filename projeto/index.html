@@ -3,11 +3,10 @@
   <head>
     <link rel="stylesheet" href="index.css" />
     <title>Formulário de Evento e Mapa</title>
-    <script
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAIpC4LC3VKqUKViZwEbMW5jh3KyuMx_yk&callback=initMap"
-      async
-      defer
-    ></script>
+    <!-- Outras tags e estilos -->
+
+    <!-- Incluindo a biblioteca do Google Maps JavaScript API -->
+    <script  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAIpC4LC3VKqUKViZwEbMW5jh3KyuMx_yk&callback=initMap" async defer></script>
 
     <style>
       #map {
@@ -20,6 +19,7 @@
     <script>
       let marker;
 
+      // Função para exibir o mapa com um marcador nas coordenadas geográficas
       function displayMapWithMarker(latitude, longitude) {
         const mapDiv = document.getElementById("map");
         mapDiv.innerHTML = "";
@@ -42,9 +42,11 @@
           const clickedLocation = event.latLng;
           marker.setPosition(clickedLocation);
 
+          // Preencha os campos do formulário com as coordenadas
           document.getElementById("latitude").value = clickedLocation.lat();
           document.getElementById("longitude").value = clickedLocation.lng();
 
+          // Obter o nome do local a partir das coordenadas
           const geocoder = new google.maps.Geocoder();
           geocoder.geocode({ location: clickedLocation }, (results, status) => {
             if (status === "OK") {
@@ -59,9 +61,83 @@
         });
       }
 
+       // Função para lidar com o envio do formulário de usuário
+       function handleUserFormSubmit(event) {
+        event.preventDefault();
+
+        // Obter os valores dos campos do formulário
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        // Criar um objeto de usuário com os valores
+        const userObject = {
+          username: username,
+          password: password,
+        };
+
+        // Enviar os dados do usuário para a rota de salvamento
+        fetch("http://localhost:3000/api/user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(userObject),
+        })
+          .then((response) => response.json())
+          .then((newUser) => {
+            console.log("Usuário criado:", newUser);
+            // Aqui você pode realizar outras ações após o cadastro do usuário
+          })
+          .catch((error) => {
+            console.error("Erro ao criar usuário:", error);
+          });
+
+        // Limpar os campos do formulário após o envio
+        document.getElementById("user-form").reset();
+      }
+
+      // Função para lidar com o envio do formulário de login
+      function handleLoginFormSubmit(event) {
+        event.preventDefault();
+
+        // Obter os valores dos campos do formulário
+        const username = document.getElementById("login-username").value;
+        const password = document.getElementById("login-password").value;
+
+        // Criar um objeto de login com os valores
+        const loginObject = {
+          username: username,
+          password: password,
+        };
+
+        // Enviar os dados de login para a rota de autenticação
+        fetch("http://localhost:3000/api/authenticate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(loginObject),
+        })
+          .then((response) => response.json())
+          .then((authData) => {
+            console.log("Dados de autenticação:", authData);
+            // Redirecionar para a página index.html
+        window.location.href = "index.html";
+      })
+      .catch((error) => {
+        console.error("Erro ao autenticar usuário:", error);
+      });
+           
+        // Limpar os campos do formulário após o envio
+        document.getElementById("login-form").reset();
+      }
+
+
+      // Função para lidar com a busca de eventos
       function handleSearchEvent() {
         const searchText = document.getElementById("searchText").value;
 
+        // Fazer a chamada para a rota de busca
         fetch(
           `http://localhost:3000/api/event/search?q=${encodeURIComponent(
             searchText
@@ -70,16 +146,19 @@
           .then((response) => response.json())
           .then((events) => {
             console.log("Eventos encontrados:", events);
+            // Aqui você pode realizar outras ações com os eventos encontrados
           })
           .catch((error) => {
             console.error("Erro ao buscar eventos:", error);
           });
       }
 
+      // Função para lidar com o envio do formulário de evento
       function handleEventFormSubmit(event) {
         event.preventDefault();
         console.log("handleEventFormSubmit called");
 
+        // Obter os valores dos campos do formulário
         const title = document.getElementById("title").value;
         const description = document.getElementById("description").value;
         const startDate = document.getElementById("startDate").value;
@@ -87,6 +166,7 @@
         const latitude = document.getElementById("latitude").value;
         const longitude = document.getElementById("longitude").value;
 
+        // Criar um objeto de evento com os valores
         const eventObject = {
           title: title,
           description: description,
@@ -97,6 +177,7 @@
           longitude: parseFloat(longitude),
         };
 
+        // Enviar os dados do evento para a rota de salvamento
         fetch("http://localhost:3000/api/event", {
           method: "POST",
           headers: {
@@ -107,35 +188,51 @@
           .then((response) => response.json())
           .then((newEvent) => {
             console.log("Evento criado:", newEvent);
+            // Aqui você pode realizar outras ações, como atualizar a lista de eventos
           })
           .catch((error) => {
             console.error("Erro ao criar evento:", error);
           });
 
+        // Limpar os campos do formulário após o envio
         document.getElementById("event-form").reset();
 
+        // Chamar a função para exibir o mapa com as coordenadas informadas
         displayMapWithMarker(0, 0);
       }
 
+      // Função de inicialização do mapa
       function initMap() {
+        // Coordenadas do local que deseja exibir no mapa
         const latitude = -23.5505;
         const longitude = -46.6333;
 
+        // Chamar a função para exibir o mapa com as coordenadas informadas
         displayMapWithMarker(latitude, longitude);
       }
-
+    
+      // Função para listar os eventos do banco de dados
       function fetchEventList() {
+        const eventList = document.getElementById("event-list");
+        eventList.innerHTML = "";
+
         fetch("http://localhost:3000/api/event")
           .then((response) => response.json())
           .then((events) => {
-            const eventList = document.getElementById("event-list");
-            eventList.innerHTML = "";
-
             events.forEach((event) => {
               const listItem = document.createElement("li");
+              listItem.id = `event-${event._id}`;
               const eventInfo = document.createElement("p");
               eventInfo.textContent = `Título: ${event.title}, Descrição: ${event.description}, Localização: ${event.location}, Data de Início: ${event.startDate}, Data de Término: ${event.endDate}`;
               listItem.appendChild(eventInfo);
+
+              const likeButton = document.createElement("button");
+              likeButton.textContent = "Like";
+              likeButton.addEventListener("click", () => {
+                // Lógica do evento "Like"
+              });
+
+              listItem.appendChild(likeButton);
               eventList.appendChild(listItem);
             });
           })
@@ -144,6 +241,7 @@
           });
       }
 
+      // Função para deletar um evento
       function deleteEvent() {
         const eventId = document.getElementById("eventId").value;
 
@@ -153,14 +251,17 @@
           .then((response) => response.json())
           .then((result) => {
             console.log("Evento deletado:", result);
+            // Aqui você pode realizar outras ações, como atualizar a lista de eventos
           })
           .catch((error) => {
             console.error("Erro ao deletar evento:", error);
           });
 
+        // Limpar o campo do ID após a exclusão
         document.getElementById("eventId").value = "";
       }
 
+      // Função para lidar com a atualização do evento
       function handleUpdateEvent() {
         const eventId = document.getElementById("eventId").value;
         if (!eventId) {
@@ -168,6 +269,7 @@
           return;
         }
 
+        // Obter os valores dos campos do formulário
         const title = document.getElementById("title").value;
         const description = document.getElementById("description").value;
         const startDate = document.getElementById("startDate").value;
@@ -175,6 +277,7 @@
         const latitude = document.getElementById("latitude").value;
         const longitude = document.getElementById("longitude").value;
 
+        // Criar um objeto de evento com os valores atualizados
         const updatedEvent = {
           title: title,
           description: description,
@@ -185,6 +288,7 @@
           longitude: parseFloat(longitude),
         };
 
+        // Enviar os dados atualizados do evento para a rota de atualização
         fetch(`http://localhost:3000/api/event/${eventId}`, {
           method: "PUT",
           headers: {
@@ -195,17 +299,20 @@
           .then((response) => response.json())
           .then((updatedEvent) => {
             console.log("Evento atualizado:", updatedEvent);
+            // Aqui você pode realizar outras ações após a atualização do evento
           })
           .catch((error) => {
             console.error("Erro ao atualizar evento:", error);
           });
       }
 
-      async function handleSearchEvent() {
+      // Função para lidar com a busca de eventos
+      function handleSearchEvent() {
         const searchText = document.getElementById("searchText").value;
 
-        await fetch(
-          `http://localhost:3000/api/event?search=${encodeURIComponent(
+        // Fazer a chamada para a rota de busca
+        fetch(
+          `http://localhost:3000/api/event/search?q=${encodeURIComponent(
             searchText
           )}`
         )
@@ -213,9 +320,11 @@
           .then((events) => {
             console.log("Eventos encontrados:", events);
 
+            // Limpar a lista de eventos
             const eventList = document.getElementById("event-list");
             eventList.innerHTML = "";
 
+            // Exibir os eventos na lista
             events.forEach((event) => {
               const listItem = document.createElement("li");
               const eventInfo = document.createElement("p");
@@ -228,6 +337,50 @@
             console.error("Erro ao buscar eventos:", error);
           });
       }
+
+
+
+      // Função para adicionar o botão "Like" dinamicamente e lidar com o evento de "Like"
+function addLikeButton(eventId) {
+  const eventItem = document.getElementById(`event-${eventId}`);
+  const likeButton = document.createElement('button');
+  likeButton.textContent = 'Like';
+  likeButton.addEventListener('click', () => {
+    const userId = getUserId(); // Obtenha o ID do usuário logado
+
+    // Enviar solicitação POST para a rota de criação do relacionamento "Like"
+    fetch('http://localhost:3000/api/event/like', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ eventId, userId }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          console.log(`Usuário de ID ${userId} curtiu o evento de ID ${data.eventId}`);
+          // Lógica adicional após o "Like" ser salvo no banco de grafos
+        } else {
+          console.error(data.message);
+        }
+      })
+      .catch((error) => {
+        console.error('Erro ao enviar solicitação de "Like":', error);
+      });
+  });
+
+  eventItem.appendChild(likeButton);
+}
+
+// Função para obter o ID do usuário logado (exemplo)
+function getUserId() {
+  // Implemente sua lógica para obter o ID do usuário logado
+  // Pode ser através de uma variável, cookie, sessão, etc.
+  return 'USER_ID';
+}
+
+
     </script>
   </head>
   <body>
@@ -263,12 +416,30 @@
       <button type="submit">Salvar</button>
     </form>
 
-    <form>
-      <input id="searchText" type="text" placeholder="pesquisar peso" />
-      <button onclick="handleSearchEvent()">Listar Peso</button>
-    </form>
-
     <h1>Mapa</h1>
     <div id="map"></div>
+    <script  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAIpC4LC3VKqUKViZwEbMW5jh3KyuMx_yk&callback=initMap" async defer></script>
+    <script>
+      // Chamar a função de inicialização do mapa após o carregamento do DOM
+      document.addEventListener("DOMContentLoaded", initMap);
+    </script>
+
+<script>
+  // Função para adicionar o botão "Like" dinamicamente
+  function addLikeButton(eventId) {
+    const eventItem = document.getElementById(`event-${eventId}`);
+    const likeButton = document.createElement('button');
+    likeButton.textContent = 'Like';
+    likeButton.addEventListener('click', () => {
+      // Lógica do evento de "Like"
+    });
+
+    eventItem.appendChild(likeButton);
+  }
+</script>
+
+
+    
+
   </body>
 </html>

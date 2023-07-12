@@ -6,6 +6,7 @@ function fillEventList(events) {
   events.forEach(event => {
     const eventItem = document.createElement('div');
     eventItem.classList.add('event-item');
+    eventItem.id = `event-${event._id}`;
 
     const title = document.createElement('h2');
     title.textContent = event.title;
@@ -31,6 +32,10 @@ function fillEventList(events) {
     eventList.appendChild(eventItem);
   });
 }
+
+
+  addLikeButton(); // Adiciona o botão "Like" após preencher a lista de eventos
+
 
 // Função para exibir o mapa na view "map"
 function displayMap(location) {

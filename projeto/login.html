@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="index.css" />
+  <title>Formulário de Evento e Mapa</title>
+  <script>
+
+    // Função para lidar com o envio do formulário de usuário
+    function handleUserFormSubmit(event) {
+      event.preventDefault();
+
+      // Obter os valores dos campos do formulário
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      // Criar um objeto de usuário com os valores
+      const userObject = {
+        username: username,
+        password: password,
+      };
+
+      // Enviar os dados do usuário para a rota de salvamento
+      fetch("http://localhost:3000/api/user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userObject),
+      })
+        .then((response) => response.json())
+        .then((newUser) => {
+          console.log("Usuário criado:", newUser);
+          // Aqui você pode realizar outras ações após o cadastro do usuário
+        })
+        .catch((error) => {
+          console.error("Erro ao criar usuário:", error);
+        });
+
+      // Limpar os campos do formulário após o envio
+      document.getElementById("user-form").reset();
+    }
+
+    // Função para lidar com o envio do formulário de login
+    function handleLoginFormSubmit(event) {
+      event.preventDefault();
+
+      // Obter os valores dos campos do formulário
+      const username = document.getElementById("login-username").value;
+      const password = document.getElementById("login-password").value;
+
+      // Criar um objeto de login com os valores
+      const loginObject = {
+        username: username,
+        password: password,
+      };
+
+      // Enviar os dados de login para a rota de autenticação
+      fetch("http://localhost:3000/api/authenticate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(loginObject),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          // Verificar se a resposta contém o token de autenticação
+          if (data.token) {
+            // Redirecionar para a página index.html
+            window.location.href = "http://localhost:3000/index.html";
+          } else {
+            console.error("Erro ao autenticar usuário");
+          }
+        })
+        .catch((error) => {
+          console.error("Erro ao autenticar usuário:", error);
+        });
+
+      // Limpar os campos do formulário após o envio
+      document.getElementById("login-form").reset();
+    }
+
+
+    // Função para lidar com a busca de eventos
+    function handleSearchEvent() {
+      const searchText = document.getElementById("searchText").value;
+
+      // Fazer a chamada para a rota de busca
+      fetch(
+        `http://localhost:3000/api/event/search?q=${encodeURIComponent(
+          searchText
+        )}`
+      )
+        .then((response) => response.json())
+        .then((events) => {
+          console.log("Eventos encontrados:", events);
+          // Aqui você pode realizar outras ações com os eventos encontrados
+        })
+        .catch((error) => {
+          console.error("Erro ao buscar eventos:", error);
+        });
+    }
+
+    // Função para lidar com o envio do formulário de evento
+    function handleEventFormSubmit(event) {
+      event.preventDefault();
+      console.log("handleEventFormSubmit called");
+    }
+
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    form {
+      max-width: 400px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      box-sizing: border-box;
+    }
+
+    button[type="submit"] {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 3px;
+      background-color: #4caf50;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Formulário de Evento</h1>
+  <!-- Formulário de Cadastro de Usuário -->
+  <form id="user-form" onsubmit="handleUserFormSubmit(event)">
+    <label for="username">Nome de Usuário:</label>
+    <input type="text" id="username" name="username" required />
+    <label for="password">Senha:</label>
+    <input type="password" id="password" name="password" required />
+
+    <button type="submit">Cadastrar Usuário</button>
+  </form>
+  <!-- Formulário de Login -->
+  <form id="login-form" onsubmit="handleLoginFormSubmit(event)">
+    <label for="login-username">Nome de Usuário:</label>
+    <input type="text" id="login-username" name="login-username" required />
+    <label for="login-password">Senha:</label>
+    <input type="password" id="login-password" name="login-password" required />
+
+    <button type="submit">Login</button>
+  </form>
+</body>
+
+</html>
